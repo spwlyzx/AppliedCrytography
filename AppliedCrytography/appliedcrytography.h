@@ -3,6 +3,7 @@
 
 #include <QtWidgets/QMainWindow>
 #include "ui_appliedcrytography.h"
+#include <QtWidgets/QFileDialog>
 
 class AppliedCrytography : public QMainWindow
 {
@@ -11,6 +12,19 @@ class AppliedCrytography : public QMainWindow
 public:
 	AppliedCrytography(QWidget *parent = 0);
 	~AppliedCrytography();
+
+private slots:
+	void GenerateKey();
+	void SavePublicKey();
+	void SavePrivateKey();
+	void LoadMessage();
+	void EncryptMessage();
+	void SaveMessage();
+	void LoadPrivateKey();
+	void LoadPublicKey();
+	void LoadEncryptedText();
+	void DecryptMessage();
+	void SaveDecryptedText();
 
 private:
 	Ui::AppliedCrytographyClass ui;

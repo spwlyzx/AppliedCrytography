@@ -50,21 +50,27 @@
     <ClCompile Include="GeneratedFiles\qrc_appliedcrytography.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\ApplicationCryptography\ApplicationCryptography\BigInteger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="appliedcrytography.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="appliedcrytography.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
     <CustomBuild Include="appliedcrytography.qrc">
       <Filter>Resource Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="appliedcrytography.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_appliedcrytography.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ApplicationCryptography\ApplicationCryptography\BigInteger.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
