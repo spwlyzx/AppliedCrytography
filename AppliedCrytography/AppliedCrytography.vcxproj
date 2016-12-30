@@ -137,8 +137,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\ApplicationCryptography\ApplicationCryptography\BigInteger.cpp" />
     <ClCompile Include="appliedcrytography.cpp" />
+    <ClCompile Include="BigInteger.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_appliedcrytography.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -200,7 +200,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\ApplicationCryptography\ApplicationCryptography\BigInteger.h" />
+    <ClInclude Include="BigInteger.h" />
     <ClInclude Include="GeneratedFiles\ui_appliedcrytography.h" />
   </ItemGroup>
   <ItemGroup>
