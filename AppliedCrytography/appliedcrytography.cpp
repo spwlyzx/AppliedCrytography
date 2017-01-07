@@ -24,7 +24,26 @@ AppliedCrytography::~AppliedCrytography()
 
 void AppliedCrytography::GenerateKey()
 {
-	
+	int i = ui.RSA_Level->currentIndex();
+	switch (i) {
+		case 0: bits = 512; break;
+		case 1: bits = 768; break;
+		case 2: bits = 1024; break;
+		case 3: bits = 2048; break;
+	}
+	p = producePrime(bits / 2);
+	q = producePrime(bits / 2);
+	n = q*p;
+	phi_n = (q - 1)*(p - 1);
+	b = produceBigInteger(bits);
+	while(gcd(b,phi_n)!=1)
+		b = produceBigInteger(phi_n);
+	a = inverseMod(b, phi_n);
+	ui.Encryption_A->setText(QString(a.toString16().c_str()));
+	ui.Encryption_B->setText(QString(b.toString16().c_str()));
+	ui.Encryption_N->setText(QString(n.toString16().c_str()));
+	ui.Encryption_P->setText(QString(p.toString16().c_str()));
+	ui.Encryption_Q->setText(QString(q.toString16().c_str()));
 }
 
 void AppliedCrytography::SavePublicKey()

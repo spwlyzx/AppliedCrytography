@@ -15,7 +15,8 @@ public:
 	~AppliedCrytography();
 
 private:
-	BigInteger a, b, p, q, n;
+	BigInteger a, b, p, q, n, phi_n;
+	int bits;
 
 private slots:
 	void GenerateKey();

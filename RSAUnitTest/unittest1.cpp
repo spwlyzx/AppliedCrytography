@@ -595,6 +595,7 @@ namespace RSAUnitTest
 			Assert::AreEqual(false, isPrime(test2));
 		}
 
+		//测试扩展欧几里得算法
 		TEST_METHOD(Functoin_Euclid)
 		{
 			BigInteger a(99),b(78);
@@ -603,6 +604,60 @@ namespace RSAUnitTest
 			Assert::AreEqual(-11, -x.getInt());
 			Assert::AreEqual(14, y.getInt());
 			Assert::AreEqual(3, d.getInt());
+		}
+
+		//测试整个操作所用时间
+		TEST_METHOD(Total_Time_1024)
+		{
+			BigInteger a, b, p, q, n, phi_n;
+			int bits,i=0;
+			bits = 1024;
+			p = producePrime(bits / 2);
+			q = producePrime(bits / 2);
+			n = q*p;
+			phi_n = (q - 1)*(p - 1);
+			b = produceBigInteger(phi_n);
+			while (gcd(b, phi_n) != 1)
+			{
+				b = b+1;
+			}
+			a = inverseMod(b, phi_n);
+		}
+
+		//测试整个操作所用时间
+		TEST_METHOD(Total_Time_768)
+		{
+			BigInteger a, b, p, q, n, phi_n;
+			int bits, i = 0;
+			bits = 768;
+			p = producePrime(bits / 2);
+			q = producePrime(bits / 2);
+			n = q*p;
+			phi_n = (q - 1)*(p - 1);
+			b = produceBigInteger(phi_n);
+			while (gcd(b, phi_n) != 1)
+			{
+				b = b + 1;
+			}
+			a = inverseMod(b, phi_n);
+		}
+
+		//测试整个操作所用时间
+		TEST_METHOD(Total_Time_2048)
+		{
+			BigInteger a, b, p, q, n, phi_n;
+			int bits, i = 0;
+			bits = 2048;
+			p = producePrime(bits / 2);
+			q = producePrime(bits / 2);
+			n = q*p;
+			phi_n = (q - 1)*(p - 1);
+			b = produceBigInteger(phi_n);
+			while (gcd(b, phi_n) != 1)
+			{
+				b = b + 1;
+			}
+			a = inverseMod(b, phi_n);
 		}
 
 		//测试ProducePrime功能
