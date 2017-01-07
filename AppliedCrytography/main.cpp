@@ -1,5 +1,6 @@
 #include "appliedcrytography.h"
 #include <QtWidgets/QApplication>
+#include "BigInteger.h"
 
 int main(int argc, char *argv[])
 {

@@ -4,6 +4,7 @@
 #include <QtWidgets/QMainWindow>
 #include "ui_appliedcrytography.h"
 #include <QtWidgets/QFileDialog>
+#include "BigInteger.h"
 
 class AppliedCrytography : public QMainWindow
 {
@@ -12,6 +13,9 @@ class AppliedCrytography : public QMainWindow
 public:
 	AppliedCrytography(QWidget *parent = 0);
 	~AppliedCrytography();
+
+private:
+	BigInteger a, b, p, q, n;
 
 private slots:
 	void GenerateKey();

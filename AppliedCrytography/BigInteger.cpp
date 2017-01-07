@@ -4,10 +4,12 @@ BigInteger::BigInteger()
 {
 	bitNum = 0;
 	isNegative = false;
+	data.reserve(NORMAL_VECTOR_SIZE);
 }
 
 BigInteger::BigInteger(int origin)
 {
+	data.reserve(NORMAL_VECTOR_SIZE);
 	if (origin == 0)
 	{
 		bitNum = 0;
@@ -34,6 +36,7 @@ BigInteger::BigInteger(int origin)
 
 BigInteger::BigInteger(unsigned int origin)
 {
+	data.reserve(NORMAL_VECTOR_SIZE);
 	if (origin == 0) {
 		bitNum = 0;
 	}
@@ -56,6 +59,7 @@ BigInteger::BigInteger(unsigned int origin)
 
 BigInteger::BigInteger(string temp)
 {
+	data.reserve(NORMAL_VECTOR_SIZE);
 	char each_group[BITS_16_NUM];
 	const char* chars = temp.c_str();
 	int len = temp.length();
@@ -86,6 +90,7 @@ BigInteger::BigInteger(string temp)
 
 BigInteger::BigInteger(long long origin)
 {
+	data.reserve(NORMAL_VECTOR_SIZE);
 	if (origin == 0) 
 	{
 		bitNum = 0;
@@ -109,6 +114,7 @@ BigInteger::BigInteger(long long origin)
 
 BigInteger::BigInteger(unsigned long long origin)
 {
+	data.reserve(NORMAL_VECTOR_SIZE);
 	if (origin == 0) {
 		bitNum = 0;
 	}
@@ -124,29 +130,32 @@ BigInteger::BigInteger(unsigned long long origin)
 	}
 }
 
+//使得当前的整数变为其相反数
 void BigInteger::opposite()
 {
 	if (bitNum != 0)
 		isNegative ^= true;
 }
 
+//使得当前整数的位数标准化，这个操作会消除所有高位无用的0占据的数组空间，从而确保数组大小的标准性
 void BigInteger::normalize()
 {
 	int j = data.size() - 1;
-	if (j < 0 || (j == 0 && data[0] == 0))
+	if (j < 0 || (j == 0 && !data[0]))
 	{
 		bitNum = 0;
 		isNegative = false;
 	}
 	else 
 	{
-		while (j >= 0 && data[j] == 0 ) {
+		while (j >= 0 && !data[j]) {
 			data.pop_back();
 			j--;
 		}
 		if (j == -1)
 		{
 			bitNum = 0;
+			isNegative = false;
 		}
 		else
 		{
@@ -156,6 +165,7 @@ void BigInteger::normalize()
 	}
 }
 
+//返回当前大整数转换成字符串的结果，字母为小写
 string BigInteger::toString16()
 {
 	if (bitNum == 0)
@@ -179,6 +189,315 @@ string BigInteger::toString16()
 	return total;
 }
 
+//将当前的数增加1
+void BigInteger::increment()
+{
+	if (bitNum == 0) {
+		data.push_back(1);
+		bitNum = 1;
+	}
+	else if (isNegative)
+	{
+		int size = data.size();
+		for (int i = 0; i < size; i++) {
+			if (data[i] == 0)
+				data[i] = MAX_EACH;
+			else
+			{
+				data[i]--;
+				break;
+			}
+		}
+		normalize();
+	}
+	else
+	{
+		bool temp = true;
+		int size = data.size();
+		for (int i = 0; i < size; i++) {
+			data[i]++;
+			if (data[i] > MAX_EACH)
+				data[i] = 0;
+			else
+			{
+				temp = false;
+				break;
+			}
+		}
+		if (temp)
+			data.push_back(1);
+		normalize();
+	}
+}
+
+//若当前数字小于MAX_EACH，则返回当前数字的int形式，否则返回-1
+int BigInteger::getInt()
+{
+	if (bitNum == 0)
+		return 0;
+	else if (bitNum < 25)
+		return data[0];
+	else
+		return -1;
+}
+
+//返回a最后r位组成的数字
+BigInteger mod_r(BigInteger a, int rbits)
+{
+	if (a.bitNum <= rbits)
+		return a;
+	BigInteger b;
+	int groups = rbits / GROUP_BIT_NUM;
+	int remains = rbits % GROUP_BIT_NUM;
+	int i;
+	for (i = 0; i < groups; i++)
+		b.data.push_back(a.data[i]);
+	b.data.push_back(a.data[i] & ((1 << remains) - 1));
+	b.normalize();
+	return b;
+}
+
+//产生一个bits位的大质数
+BigInteger producePrime(int bits)
+{
+	int primes_mod[primes_size] = { 0 };
+	BigInteger result = produceBigIntegerP(bits);
+	bool flag = true;
+	for (int i = 0; i < primes_size; i++)
+	{
+		primes_mod[i] = (result%primes[i]).getInt();
+	}
+	for (int i = 0; i < primes_size; i++)
+	{
+		if (primes_mod[i] == 0)
+		{
+			flag = false;
+			break;
+		}
+	}
+	if (flag)
+		return result;
+	else
+	{
+		while (true) {
+			result.increment();
+			result.increment();
+			flag = true;
+			for (int i = 0; i < primes_size; i++)
+			{
+				primes_mod[i] = (primes_mod[i] + 2) % primes[i];
+			}
+			for (int i = 0; i < primes_size; i++)
+			{
+				if (primes_mod[i] == 0)
+				{
+					flag = false;
+					break;
+				}
+			}
+			if (flag && isPrime(result))
+				break;
+		}
+		return result;
+	}
+}
+
+//获取最大公约数
+BigInteger gcd(const BigInteger &a, const BigInteger &b)
+{
+	if (b.bitNum == 0)
+		return a;
+	else
+		return gcd(b,a%b);
+}
+
+//扩展欧几里得算法，ax+by = gcd(a,b)，此处默认gcd为1
+BigInteger extendEclid(const BigInteger &a, const BigInteger &b, BigInteger &x, BigInteger &y)
+{
+	if (b.bitNum == 0)
+	{
+		x = 1;
+		y = 0;
+		return a;
+	}
+	else
+	{
+		BigInteger m, n;
+		BigInteger d = extendEclid(b, a%b, m, n);
+		x = n;
+		y = m - (a / b)*n;
+		return d;
+	}
+}
+
+//检测正整数n是否位素数，若为负数或复合数，则返回false
+bool isPrime(const BigInteger& n)
+{
+	if (n.isNegative || n.bitNum <= 1)
+		return true;
+	BigInteger n_1 = n - 1;
+	int size = n_1.data.size();
+	int s = 0;
+	int i;
+	for (i = 0; i < size; i++) {
+		if (n_1.data[i] == 0)
+			s += GROUP_BIT_NUM;
+		else
+			break;
+	}
+	unsigned int temp = n_1.data[i];
+	while ((temp & 1) ^ 1) {
+		temp = temp >> 1;
+		s++;
+	}
+	BigInteger d = n_1 >> s;
+	BigInteger a = produceBigInteger(n_1);
+	if (gcd(a, n) > 1)
+		return false;
+	BigInteger x0 = modularExp(a, d, n);
+	BigInteger x1;
+	for (i = 0; i < s; i++) {
+		if (x0 == 1)
+			return true;
+		x1 = (x0 * x0) % n;
+		if (x1 == 1 && x0 != 1 && x0 != n_1)
+			return false;
+		x0 = x1;
+	}
+	if (x0 != 1)
+		return false;
+	return true;
+}
+
+//返回b在模a下的逆，若返回值为NULL则表明模a下逆不存在
+BigInteger inverseMod(const BigInteger &b, const BigInteger &a)
+{
+	BigInteger a0 = a;
+	BigInteger b0 = b;
+	BigInteger t(1), t0(0);
+	BigInteger q = a0 / b0;
+	BigInteger r = a0 - q*b0;
+	BigInteger temp;
+	while (r > 0)
+	{
+		temp = (t0 - q*t) % a;
+		t0 = t;
+		t = temp;
+		a0 = b0;
+		b0 = r;
+		q = a0 / b0;
+		r = a0 - q*b0;
+	}
+	if (b0 != 1)
+		return NULL;
+	if (t < 0)
+		t = t + a;
+	return t;
+}
+
+BigInteger montogomeryProduction(const BigInteger& a, const BigInteger& b, const BigInteger& n, const BigInteger& n_s)
+{
+	int rbits = n.bitNum;
+	BigInteger ab = a * b;
+	BigInteger t = mod_r(ab, rbits);
+	BigInteger m = mod_r((t * n_s), rbits);
+	BigInteger u = (ab + m*n) >> rbits;
+	if (u >= n)
+		return u - n;
+	return u;
+}
+
+//返回a的b次方在n下的模
+BigInteger modularExp(const BigInteger& a, const BigInteger& e, const BigInteger& n)
+{
+	BigInteger r_reverse, n_s;
+	BigInteger r(1);
+	int rbits = n.bitNum;
+	r = r << rbits;
+	extendEclid(r, n, r_reverse, n_s);
+	if (r_reverse < 0)
+	{
+		r_reverse = r_reverse + n;
+		n_s = n_s - r;
+		n_s.opposite();
+	}
+	else
+		n_s.opposite();
+	BigInteger a_s = (a << rbits) % n;
+	BigInteger x_s = (BigInteger(1) << rbits) % n;
+	for (int i = e.bitNum-1; i >= 0; i--)
+	{
+		x_s = montogomeryProduction(x_s, x_s, n, n_s);
+		if (e.data[i / GROUP_BIT_NUM] & (1 << (i%GROUP_BIT_NUM)))
+			x_s = montogomeryProduction(a_s, x_s, n, n_s);
+	}
+	return montogomeryProduction(x_s, 1, n, n_s);
+}
+
+//返回一个第一位为1的bits位的末位位1的大正整数
+BigInteger produceBigIntegerP(int bits)
+{
+	if (bits <= 0)
+		return NULL;
+	BigInteger result;
+	int groups = bits / GROUP_BIT_NUM;
+	int remains = bits % GROUP_BIT_NUM;
+	srand((unsigned)time(NULL));
+	while (groups > 0) {
+		result.data.push_back(rand() & MAX_EACH);
+		groups--;
+	}
+	if (remains != 0)
+		result.data.push_back(rand() & ((1 << remains) - 1) | (1 << (remains - 1)));
+	result.data[0] = result.data[0] | 1;
+	result.normalize();
+	return result;
+}
+
+//返回一个随机生成的最多为bits位的大正整数
+BigInteger produceBigInteger(int bits)
+{
+	if (bits <= 0)
+		return NULL;
+	BigInteger result;
+	int groups = bits / GROUP_BIT_NUM;
+	int remains = bits % GROUP_BIT_NUM;
+	srand((unsigned)time(NULL));
+	while (groups > 0)
+	{
+		result.data.push_back(rand() & MAX_EACH);
+		groups--;
+	}
+	if(remains!=0)
+		result.data.push_back(rand() & ((1 << remains) - 1));
+	result.normalize();
+	return result;
+}
+
+//返回一个随机生成的小于n的大正整数
+BigInteger produceBigInteger(const BigInteger& n)
+{
+	int bits = n.bitNum;
+	if (bits <= 1)
+		return NULL;
+	BigInteger result;
+	int groups = bits / GROUP_BIT_NUM;
+	int remains = bits % GROUP_BIT_NUM;
+	srand((unsigned)time(NULL));
+	if (remains == 0) {
+		groups--;
+		remains = GROUP_BIT_NUM;
+	}
+	while (groups > 0)
+	{
+		result.data.push_back(rand() & MAX_EACH);
+		groups--;
+	}
+	result.data.push_back(rand() % n.data[n.data.size() - 1]);
+	result.normalize();
+	return result;
+}
+
 BigInteger operator-(const BigInteger &a)
 {
 	BigInteger temp = a;
@@ -195,13 +514,9 @@ BigInteger operator+(const BigInteger &a, const BigInteger &b)
 	if (a.isNegative ^ b.isNegative)
 	{
 		if (a.isNegative)
-		{
 			return b - (-a);
-		}
 		else
-		{
 			return a - (-b);
-		}
 	}
 
 	int sa = a.data.size();
@@ -220,33 +535,27 @@ BigInteger operator+(const BigInteger &a, const BigInteger &b)
 			temp = temp & MASK_LOW;
 		}
 		else
-		{
 			carry = 0;
-		}
 		c.data.push_back(temp);
 	}
 	if (sa == sb)
 	{
 		if (carry == 1)
-		{
 			c.data.push_back(1);
-		}
 	}
 	else
 	{
 		if (sa > sb)
 		{
 			c.data.push_back(a.data[i] + carry);
-			for (i++; i < a.data.size(); i++) {
+			for (i++; i < a.data.size(); i++)
 				c.data.push_back(a.data[i]);
-			}
 		}
 		else
 		{
 			c.data.push_back(b.data[i] + carry);
-			for (i++; i < b.data.size(); i++) {
+			for (i++; i < b.data.size(); i++)
 				c.data.push_back(b.data[i]);
-			}
 		}
 	}
 	c.isNegative = a.isNegative;
@@ -409,7 +718,7 @@ BigInteger operator/(const BigInteger &a, const BigInteger &b)
 		{
 			return 1;
 		}
-		else if (a < b)
+		else if (a < b ? !a.isNegative : a.isNegative)
 		{
 			return 0;
 		}
@@ -417,17 +726,14 @@ BigInteger operator/(const BigInteger &a, const BigInteger &b)
 		{
 			int diff = abits - bbits;
 			BigInteger tempa = a;//最后储存余数
+			if (a.isNegative)
+				tempa.opposite();
 			BigInteger tempb = b << diff;
-			BigInteger result(0);
+			if (b.isNegative)
+				tempb.opposite();
+			BigInteger result;
 			while (diff >= 0) {
-				if (tempa > tempb)
-				{
-					tempa = tempa - tempb;
-					BigInteger temps(1);
-					temps = temps << diff;
-					result = result + temps;
-				}
-				else if (tempa == tempb)
+				if (tempa >= tempb)
 				{
 					tempa = tempa - tempb;
 					BigInteger temps(1);
@@ -446,7 +752,45 @@ BigInteger operator/(const BigInteger &a, const BigInteger &b)
 
 BigInteger operator%(const BigInteger &a, const BigInteger &b)
 {
-	return NULL;
+	if (b.bitNum == 0)
+		return NULL;
+	else if (a.bitNum == 0)
+		return 0;
+	else
+	{
+		int abits = a.bitNum;
+		int bbits = b.bitNum;
+		if (abits < bbits)
+			return a;
+		else if (abits == bbits && a == b)
+		{
+			return 0;
+		}
+		else if (a < b ? !a.isNegative : a.isNegative)
+		{
+			return a;
+		}
+		else
+		{
+			int diff = abits - bbits;
+			BigInteger tempa = a;//最后储存余数
+			if (a.isNegative)
+				tempa.opposite();
+			BigInteger tempb = b << diff;
+			if (b.isNegative)
+				tempb.opposite();
+			while (diff >= 0) {
+				if (tempa >= tempb)
+					tempa = tempa - tempb;
+				tempb = tempb >> 1;
+				diff--;
+			}
+			tempa.normalize();
+			if (a.isNegative)
+				tempa.opposite();
+			return tempa;
+		}
+	}
 }
 
 BigInteger operator<<(const BigInteger &a, const int &b)
@@ -493,19 +837,17 @@ BigInteger operator>>(const BigInteger &a, const int &b)
 	int group_move = b / GROUP_BIT_NUM;
 	int in_move = b % GROUP_BIT_NUM;
 	BigInteger c;
-	c = a;
 	int size = a.data.size();
-	if (in_move > a.bitNum - (size-1)*GROUP_BIT_NUM) {
-		group_move++;
-	}
 	unsigned int mask = (1 << in_move) - 1;
 	unsigned int temp1 = 0, temp2;
-	for (int i = size - 1; i >=0; i--) {
+	for (int i = group_move; i < size; i++) {
+		c.data.push_back(a.data[i]);
+	}
+	for (int i = c.data.size()-1; i>=0; i--) {
 		temp2 = (c.data[i] & mask) << (GROUP_BIT_NUM - in_move);
-		c.data[i] = ((c.data[i] >> in_move) | temp1) & MAX_EACH;
+		c.data[i] = ((c.data[i] >> in_move) | temp1);
 		temp1 = temp2;
 	}
-	c.data._Pop_back_n(group_move);
 	c.isNegative = a.isNegative;
 	c.normalize();
 	return c;
@@ -645,6 +987,46 @@ bool operator>=(const BigInteger &a, const BigInteger &b)
 			return true;
 		}
 	}
+}
+
+bool operator==(const BigInteger &a, const int &b)
+{
+	if (a.bitNum == 0)
+	{
+		if (b == 0)
+			return true;
+		else
+			return false;
+	}
+	if (a.isNegative ^ (b < 0))
+		return false;
+	int temp = log2(b) + 1;
+	if (a.bitNum ^ temp)
+		return false;
+	if (a.data[0] == b)
+		return true;
+	else
+		return false;
+}
+
+bool operator!=(const BigInteger &a, const int &b)
+{
+	if (a.bitNum == 0)
+	{
+		if (b == 0)
+			return false;
+		else
+			return true;
+	}
+	if (a.isNegative ^ (b < 0))
+		return true;
+	int temp = log2(b) + 1;
+	if (a.bitNum ^ temp)
+		return true;
+	if (a.data[0] == b)
+		return false;
+	else
+		return true;
 }
 
 bool operator<=(const BigInteger &a, const BigInteger &b)

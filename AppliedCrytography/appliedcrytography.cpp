@@ -24,7 +24,7 @@ AppliedCrytography::~AppliedCrytography()
 
 void AppliedCrytography::GenerateKey()
 {
-
+	
 }
 
 void AppliedCrytography::SavePublicKey()

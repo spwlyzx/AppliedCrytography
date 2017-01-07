@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
 #include "BigInteger.h"
-#include <ctime>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -260,6 +259,30 @@ namespace RSAUnitTest
 				BigInteger test4 = test1 + test2;
 				Assert::AreEqual(test3.toString16(), test4.toString16());
 			}
+
+			for (int i = 0; i < 50; i++) {
+				long long test_int1 = rand()*rand();
+				long long test_int2 = -rand()*rand();
+				long long test_int3 = test_int1 + test_int2;
+
+				BigInteger test1(test_int1);
+				BigInteger test2(test_int2);
+				BigInteger test3(test_int3);
+				BigInteger test4 = test1 + test2;
+				Assert::AreEqual(test3.toString16(), test4.toString16());
+			}
+
+			for (int i = 0; i < 50; i++) {
+				long long test_int1 = -rand()*rand();
+				long long test_int2 = -rand()*rand();
+				long long test_int3 = test_int1 + test_int2;
+
+				BigInteger test1(test_int1);
+				BigInteger test2(test_int2);
+				BigInteger test3(test_int3);
+				BigInteger test4 = test1 + test2;
+				Assert::AreEqual(test3.toString16(), test4.toString16());
+			}
 		}
 
 		//测试-功能
@@ -278,6 +301,30 @@ namespace RSAUnitTest
 				BigInteger test4 = test1 - test2;
 				Assert::AreEqual(test3.toString16(), test4.toString16());
 			}
+
+			for (int i = 0; i < 50; i++) {
+				long long test_int1 = rand()*rand();
+				long long test_int2 = -rand()*rand();
+				long long test_int3 = test_int1 - test_int2;
+
+				BigInteger test1(test_int1);
+				BigInteger test2(test_int2);
+				BigInteger test3(test_int3);
+				BigInteger test4 = test1 - test2;
+				Assert::AreEqual(test3.toString16(), test4.toString16());
+			}
+
+			for (int i = 0; i < 50; i++) {
+				long long test_int1 = -rand()*rand();
+				long long test_int2 = -rand()*rand();
+				long long test_int3 = test_int1 - test_int2;
+
+				BigInteger test1(test_int1);
+				BigInteger test2(test_int2);
+				BigInteger test3(test_int3);
+				BigInteger test4 = test1 - test2;
+				Assert::AreEqual(test3.toString16(), test4.toString16());
+			}
 		}
 
 		//测试*功能
@@ -288,6 +335,32 @@ namespace RSAUnitTest
 			for (int i = 0; i < 50; i++) {
 				long long test_int1 = rand();
 				long long test_int2 = rand();
+				long long test_int3 = test_int1 * test_int2;
+
+				BigInteger test1(test_int1);
+				BigInteger test2(test_int2);
+				BigInteger test3(test_int3);
+				BigInteger test4 = test1 * test2;
+
+				Assert::AreEqual(test3.toString16(), test4.toString16());
+			}
+
+			for (int i = 0; i < 50; i++) {
+				long long test_int1 = -rand();
+				long long test_int2 = rand();
+				long long test_int3 = test_int1 * test_int2;
+
+				BigInteger test1(test_int1);
+				BigInteger test2(test_int2);
+				BigInteger test3(test_int3);
+				BigInteger test4 = test1 * test2;
+
+				Assert::AreEqual(test3.toString16(), test4.toString16());
+			}
+
+			for (int i = 0; i < 50; i++) {
+				long long test_int1 = -rand();
+				long long test_int2 = -rand();
 				long long test_int3 = test_int1 * test_int2;
 
 				BigInteger test1(test_int1);
@@ -327,6 +400,32 @@ namespace RSAUnitTest
 				Assert::AreEqual(test3.toString16(), test4.toString16());
 			}
 
+			for (int i = 0; i < 50; i++) {
+				long long test_int1 = rand();
+				long long test_int2 = -rand();
+				long long test_int3 = test_int1 / test_int2;
+
+				BigInteger test1(test_int1);
+				BigInteger test2(test_int2);
+				BigInteger test3(test_int3);
+				BigInteger test4 = test1 / test2;
+
+				Assert::AreEqual(test3.toString16(), test4.toString16());
+			}
+
+			for (int i = 0; i < 50; i++) {
+				long long test_int1 = -rand();
+				long long test_int2 = -rand();
+				long long test_int3 = test_int1 / test_int2;
+
+				BigInteger test1(test_int1);
+				BigInteger test2(test_int2);
+				BigInteger test3(test_int3);
+				BigInteger test4 = test1 / test2;
+
+				Assert::AreEqual(test3.toString16(), test4.toString16());
+			}
+
 			string test_s1 = "d4fdc287b";//57174403195
 			string test_s2 = "1ba15c2cbcb0d68aaf";//509689307517053995695
 			string test_s3 = "2135aa25d";//8914641501
@@ -334,6 +433,61 @@ namespace RSAUnitTest
 			BigInteger tests1(test_s1);
 			BigInteger tests2(test_s2);
 			BigInteger tests3 = tests2 / tests1;
+
+			Assert::AreEqual(test_s3, tests3.toString16());
+		}
+
+		//测试%功能
+		TEST_METHOD(Function_Module)
+		{
+			srand((unsigned)time(NULL));
+
+			for (int i = 0; i < 50; i++) {
+				long long test_int1 = rand();
+				long long test_int2 = rand();
+				long long test_int3 = test_int1 % test_int2;
+
+				BigInteger test1(test_int1);
+				BigInteger test2(test_int2);
+				BigInteger test3(test_int3);
+				BigInteger test4 = test1 % test2;
+
+				Assert::AreEqual(test3.toString16(), test4.toString16());
+			}
+
+			for (int i = 0; i < 50; i++) {
+				long long test_int1 = rand();
+				long long test_int2 = -rand();
+				long long test_int3 = test_int1 % test_int2;
+
+				BigInteger test1(test_int1);
+				BigInteger test2(test_int2);
+				BigInteger test3(test_int3);
+				BigInteger test4 = test1 % test2;
+
+				Assert::AreEqual(test3.toString16(), test4.toString16());
+			}
+
+			for (int i = 0; i < 50; i++) {
+				long long test_int1 = -rand();
+				long long test_int2 = -rand();
+				long long test_int3 = test_int1 % test_int2;
+
+				BigInteger test1(test_int1);
+				BigInteger test2(test_int2);
+				BigInteger test3(test_int3);
+				BigInteger test4 = test1 % test2;
+
+				Assert::AreEqual(test3.toString16(), test4.toString16());
+			}
+
+			string test_s1 = "d4fdc287b";//57174403195
+			string test_s2 = "1ba15c2cbcb0d68aaf";//509689307517053995695
+			string test_s3 = "0";//8914641501
+
+			BigInteger tests1(test_s1);
+			BigInteger tests2(test_s2);
+			BigInteger tests3 = tests2 % tests1;
 
 			Assert::AreEqual(test_s3, tests3.toString16());
 		}
@@ -350,6 +504,112 @@ namespace RSAUnitTest
 		//		tests1 * tests2;
 		//	}
 		//}
+
+		//测试inverse功能
+		TEST_METHOD(Function_Inverse)
+		{
+			long long test_int1 = 28;
+			long long test_int2 = 75;
+			long long test_int3 = 67;
+
+			BigInteger test1(test_int1);
+			BigInteger test2(test_int2);
+			BigInteger test3(test_int3);
+			BigInteger test4 = inverseMod(test1,test2);
+			Assert::AreEqual(test3.toString16(), test4.toString16());
+
+			long long test_int5 = 3;
+			long long test_int6 = 8;
+			long long test_int7 = 3;
+
+			BigInteger test5(test_int5);
+			BigInteger test6(test_int6);
+			BigInteger test7(test_int7);
+			BigInteger test8 = inverseMod(test5, test6);
+			Assert::AreEqual(test7.toString16(), test8.toString16());
+		}
+
+		//测试Increment功能
+		TEST_METHOD(Function_Increment)
+		{
+			srand((unsigned)time(NULL));
+
+			for (int i = 0; i < 50; i++) {
+				long long test_int1 = rand();
+				long long test_int3 = test_int1+1;
+
+				BigInteger test1(test_int1);
+				BigInteger test3(test_int3);
+				test1.increment();
+				Assert::AreEqual(test3.toString16(), test1.toString16());
+			}
+
+			for (int i = 0; i < 50; i++) {
+				long long test_int1 = -rand();
+				long long test_int3 = test_int1+1;
+
+				BigInteger test1(test_int1);
+				BigInteger test3(test_int3);
+				test1.increment();
+				Assert::AreEqual(test3.toString16(), test1.toString16());
+			}
+
+			long long test_int1 = -1;
+			long long test_int2 = test_int1 + 1;
+
+			BigInteger test1(test_int1);
+			BigInteger test2(test_int2);
+			test1.increment();
+			Assert::AreEqual(test2.toString16(), test1.toString16());
+
+			long long test_int3 = (1 << 24) - 1;
+			long long test_int4 = test_int3 + 1;
+
+			BigInteger test3(test_int3);
+			BigInteger test4(test_int4);
+			test3.increment();
+			Assert::AreEqual(test4.toString16(), test3.toString16());
+		}
+
+		//测试ModularExp功能
+		TEST_METHOD(Function_ModularExp)
+		{
+			long long a = 7;
+			long long b = 10;
+			long long n = 13;
+			long long r = 4;
+
+			BigInteger ta(a);
+			BigInteger tb(b);
+			BigInteger tn(n);
+			BigInteger tr(r);
+			Assert::AreEqual(tr.toString16(), (modularExp(ta,tb,tn)).toString16());
+		}
+
+		//测试isPrime功能
+		TEST_METHOD(Function_isPrime)
+		{
+			BigInteger test(920419823);
+			Assert::AreEqual(true,isPrime(test));
+			BigInteger test2(1721 * 3769);
+			Assert::AreEqual(false, isPrime(test2));
+		}
+
+		TEST_METHOD(Functoin_Euclid)
+		{
+			BigInteger a(99),b(78);
+			BigInteger x, y, d;
+			d = extendEclid(a,b,x,y);
+			Assert::AreEqual(-11, -x.getInt());
+			Assert::AreEqual(14, y.getInt());
+			Assert::AreEqual(3, d.getInt());
+		}
+
+		//测试ProducePrime功能
+		TEST_METHOD(Function_ProducePrime)
+		{
+			BigInteger k = producePrime(512);
+		}
 
 		//测试<<功能
 		TEST_METHOD(Function_Left_Move)
