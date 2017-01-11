@@ -207,6 +207,7 @@ public:
 	int getInt();
 };
 
+void InitRandom();
 //返回a最后r位组成的数字
 BigInteger mod_r(BigInteger a, int rbits);
 //产生一个bits位的大质数
@@ -219,7 +220,7 @@ BigInteger inverseMod(const BigInteger &b, const BigInteger &a);
 BigInteger gcd(const BigInteger &a, const BigInteger &b);
 //扩展欧几里得算法，ax+by = gcd(a,b)
 BigInteger extendEclid(const BigInteger &a, const BigInteger &b, BigInteger &x, BigInteger &y);
-//返回一个第一位为1的bits位的末位位1的大正整数
+//返回一个第一位为1的bits位的末位为1的大正整数
 BigInteger produceBigIntegerP(int bits);
 //返回一个随机生成的最多bits位的大正整数
 BigInteger produceBigInteger(int bits);
@@ -227,7 +228,17 @@ BigInteger produceBigInteger(int bits);
 BigInteger produceBigInteger(const BigInteger& n);
 //返回a的b次方在n下的模
 BigInteger modularExp(const BigInteger& a, const BigInteger& b, const BigInteger& n);
+//返回montogomery模乘结果
 BigInteger montogomeryProduction(const BigInteger& a, const BigInteger& b, const BigInteger& n, const BigInteger& n_s);
+//将一个长字符串转化为一系列BigInteger
+void transferToBigIntegers(vector<BigInteger> &bigs, const string &message, const int& bits);
+//将一个16进制长字符串转化为一系列BigInteger
+void transferToBigIntegers16(vector<BigInteger> &bigs, const string &message, const int& bits);
+//将一系列BigInteger转化为一个长字符串
+void transferToString(const vector<BigInteger> &bigs, string &message, const int& bits);
+//将一系列BigInteger转化为一个16进制长字符串
+void transferToString16(vector<BigInteger> &bigs, string &message, const int& bits);
+//将一个长度小于等于
 BigInteger operator-(const BigInteger &a);
 BigInteger operator+(const BigInteger &a, const BigInteger &b);
 BigInteger operator-(const BigInteger &a, const BigInteger &b);

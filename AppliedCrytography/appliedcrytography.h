@@ -5,6 +5,9 @@
 #include "ui_appliedcrytography.h"
 #include <QtWidgets/QFileDialog>
 #include "BigInteger.h"
+#include <iostream>
+#include <fstream>
+#include "QtWidgets/qmessagebox.h"
 
 class AppliedCrytography : public QMainWindow
 {
@@ -17,6 +20,7 @@ public:
 private:
 	BigInteger a, b, p, q, n, phi_n;
 	int bits;
+	string message, encrypt_message;
 
 private slots:
 	void GenerateKey();

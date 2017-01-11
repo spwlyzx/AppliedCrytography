@@ -1,5 +1,7 @@
 #include "BigInteger.h"
 
+bool isNotInit = true;
+
 BigInteger::BigInteger()
 {
 	bitNum = 0;
@@ -127,6 +129,15 @@ BigInteger::BigInteger(unsigned long long origin)
 			origin = origin >> GROUP_BIT_NUM;
 		}
 		normalize();
+	}
+}
+
+void InitRandom()
+{
+	if (isNotInit)
+	{
+		srand(unsigned(time(0)));
+		isNotInit = false;
 	}
 }
 
@@ -275,7 +286,7 @@ BigInteger producePrime(int bits)
 			break;
 		}
 	}
-	if (flag)
+	if (flag && isPrime(result))
 		return result;
 	else
 	{
@@ -286,13 +297,9 @@ BigInteger producePrime(int bits)
 			for (int i = 0; i < primes_size; i++)
 			{
 				primes_mod[i] = (primes_mod[i] + 2) % primes[i];
-			}
-			for (int i = 0; i < primes_size; i++)
-			{
 				if (primes_mod[i] == 0)
 				{
 					flag = false;
-					break;
 				}
 			}
 			if (flag && isPrime(result))
@@ -351,50 +358,49 @@ bool isPrime(const BigInteger& n)
 		s++;
 	}
 	BigInteger d = n_1 >> s;
-	BigInteger a = produceBigInteger(n_1);
-	if (gcd(a, n) > 1)
-		return false;
-	BigInteger x0 = modularExp(a, d, n);
+	BigInteger x0;
 	BigInteger x1;
-	for (i = 0; i < s; i++) {
-		if (x0 == 1)
-			return true;
-		x1 = (x0 * x0) % n;
-		if (x1 == 1 && x0 != 1 && x0 != n_1)
+	BigInteger a;
+	BigInteger b;
+	for (int j = 0; j < MILLER_RABIN_TIMES; j++)
+	{
+		a = produceBigInteger(n_1);
+		while (b == a)
+			a.increment();
+		b = a;
+		if (gcd(a, n) > 1)
 			return false;
-		x0 = x1;
+		bool flag = true;
+		x0 = modularExp(a, d, n);
+		for (i = 0; i < s; i++) {
+			if (x0.bitNum == 1) 
+			{
+				flag = false;
+				break;
+			}
+			x0 = (x0 * x0) % n;
+		}
+		if (x0.bitNum == 1)
+			flag = false;
+		if (flag)
+			return false;
 	}
-	if (x0 != 1)
-		return false;
 	return true;
 }
 
 //返回b在模a下的逆，若返回值为NULL则表明模a下逆不存在
 BigInteger inverseMod(const BigInteger &b, const BigInteger &a)
 {
-	BigInteger a0 = a;
-	BigInteger b0 = b;
-	BigInteger t(1), t0(0);
-	BigInteger q = a0 / b0;
-	BigInteger r = a0 - q*b0;
-	BigInteger temp;
-	while (r > 0)
-	{
-		temp = (t0 - q*t) % a;
-		t0 = t;
-		t = temp;
-		a0 = b0;
-		b0 = r;
-		q = a0 / b0;
-		r = a0 - q*b0;
-	}
-	if (b0 != 1)
+	if (gcd(a, b) > 1)
 		return NULL;
-	if (t < 0)
-		t = t + a;
-	return t;
+	BigInteger x, y;
+	extendEclid(b, a, x, y);
+	while (x < 0)
+		x = x + a;
+	return x;
 }
 
+//返回montogomery模乘结果
 BigInteger montogomeryProduction(const BigInteger& a, const BigInteger& b, const BigInteger& n, const BigInteger& n_s)
 {
 	int rbits = n.bitNum;
@@ -434,15 +440,15 @@ BigInteger modularExp(const BigInteger& a, const BigInteger& e, const BigInteger
 	return montogomeryProduction(x_s, 1, n, n_s);
 }
 
-//返回一个第一位为1的bits位的末位位1的大正整数
+//返回一个第一位为1的bits位的末位为1的大正整数
 BigInteger produceBigIntegerP(int bits)
 {
+	InitRandom();
 	if (bits <= 0)
 		return NULL;
 	BigInteger result;
 	int groups = bits / GROUP_BIT_NUM;
 	int remains = bits % GROUP_BIT_NUM;
-	srand((unsigned)time(NULL));
 	while (groups > 0) {
 		result.data.push_back(rand() & MAX_EACH);
 		groups--;
@@ -457,12 +463,12 @@ BigInteger produceBigIntegerP(int bits)
 //返回一个随机生成的最多为bits位的大正整数
 BigInteger produceBigInteger(int bits)
 {
+	InitRandom();
 	if (bits <= 0)
 		return NULL;
 	BigInteger result;
 	int groups = bits / GROUP_BIT_NUM;
 	int remains = bits % GROUP_BIT_NUM;
-	srand((unsigned)time(NULL));
 	while (groups > 0)
 	{
 		result.data.push_back(rand() & MAX_EACH);
@@ -477,13 +483,13 @@ BigInteger produceBigInteger(int bits)
 //返回一个随机生成的小于n的大正整数
 BigInteger produceBigInteger(const BigInteger& n)
 {
+	InitRandom();
 	int bits = n.bitNum;
 	if (bits <= 1)
 		return NULL;
 	BigInteger result;
 	int groups = bits / GROUP_BIT_NUM;
 	int remains = bits % GROUP_BIT_NUM;
-	srand((unsigned)time(NULL));
 	if (remains == 0) {
 		groups--;
 		remains = GROUP_BIT_NUM;
@@ -496,6 +502,84 @@ BigInteger produceBigInteger(const BigInteger& n)
 	result.data.push_back(rand() % n.data[n.data.size() - 1]);
 	result.normalize();
 	return result;
+}
+
+//将一个长字符串转化为一系列BigInteger
+void transferToBigIntegers(vector<BigInteger> &bigs, const string &message, const int& bits)
+{
+	bigs.clear();
+	const char* temp = message.c_str();
+	unsigned char x, y, z;
+	int total, i, j;
+	int size = message.size();
+	int each = bits / 8;
+	for (j = 0; j < size; j = j + each)
+	{
+		for (i = j; i < size && i < j + each; i = i + 3) {
+			x = temp[i];
+			if (i + 1 < size && i + 1 < j + each)
+				y = temp[i + 1];
+			else
+				y = 0;
+			if (i + 2 < size && i + 2 < j + each)
+				z = temp[i + 2];
+			else
+				z = 0;
+			total = (x << 16) + (y << 8) + z;
+			bigs.push_back(BigInteger(total));
+		}
+	}
+}
+
+//将一系列BigInteger转化为一个长字符串
+void transferToString(const vector<BigInteger> &bigs, string &message, const int& bits)
+{
+	message = "";
+	int total, i, j;
+	char x, y, z;
+	for (j = 0; j < bigs.size(); j++)
+	{
+		for (i = 0; i < bigs[j].data.size(); i++) {
+			int temp = bigs[j].data[i];
+			x = temp >> 16;
+			y = temp >> 8;
+			z = temp;
+			if (x != 0)
+				message.push_back(x);
+			if (y != 0)
+				message.push_back(y);
+			if (z != 0)
+				message.push_back(z);
+		}
+	}
+}
+
+//将一个16进制长字符串转化为一系列BigInteger
+void transferToBigIntegers16(vector<BigInteger> &bigs, const string &message, const int& bits)
+{
+	bigs.clear();
+	int each = bits / 4;
+	int num = message.length() / each + 1;
+	for (int i = 0; i < num;i++) {
+		int min = (i*each + each - 1) > message.length() ? message.length() - (i*each-1) : each;
+		string substr = message.substr(i*each, min);
+		bigs.push_back(BigInteger(substr));
+	}
+}
+
+//将一系列BigInteger转化为一个16进制长字符串
+void transferToString16(vector<BigInteger> &bigs, string &message, const int& bits)
+{
+	message = "";
+	int num = bigs.size();
+	string temp;
+	for (int i = 0; i <num; i++)
+	{
+		temp = bigs[i].toString16();
+		while (temp.length() < bits / 4)
+			temp = "0" + temp;
+		message = message + temp;
+	}
 }
 
 BigInteger operator-(const BigInteger &a)

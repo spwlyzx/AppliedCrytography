@@ -517,16 +517,20 @@ namespace RSAUnitTest
 			BigInteger test3(test_int3);
 			BigInteger test4 = inverseMod(test1,test2);
 			Assert::AreEqual(test3.toString16(), test4.toString16());
+			test4 = inverseMod(test4, test2);
+			Assert::AreEqual(test1.toString16(), test4.toString16());
 
-			long long test_int5 = 3;
-			long long test_int6 = 8;
-			long long test_int7 = 3;
+			long long test_int5 = 12111345435247;
+			long long test_int6 = 12434633333524;
 
 			BigInteger test5(test_int5);
 			BigInteger test6(test_int6);
-			BigInteger test7(test_int7);
 			BigInteger test8 = inverseMod(test5, test6);
-			Assert::AreEqual(test7.toString16(), test8.toString16());
+			BigInteger testt = test8;
+			test8 = inverseMod(test8, test6);
+			Assert::AreEqual(test5.toString16(), test8.toString16());
+			BigInteger testk = (testt*test5) % test6;
+			Assert::AreEqual(BigInteger(1).toString16(),testk.toString16());
 		}
 
 		//测试Increment功能
@@ -574,25 +578,23 @@ namespace RSAUnitTest
 		//测试ModularExp功能
 		TEST_METHOD(Function_ModularExp)
 		{
-			long long a = 7;
-			long long b = 10;
-			long long n = 13;
-			long long r = 4;
-
-			BigInteger ta(a);
-			BigInteger tb(b);
-			BigInteger tn(n);
-			BigInteger tr(r);
-			Assert::AreEqual(tr.toString16(), (modularExp(ta,tb,tn)).toString16());
+			BigInteger ta("34534434616548138465183158351832");
+			BigInteger tb("34534434616548138465183158351831");
+			BigInteger tn("45634765656555");
+			BigInteger tr("1");
+			Assert::AreEqual(tr.toString16(), (modularExp(ta,tn,tb)).toString16());
 		}
 
 		//测试isPrime功能
 		TEST_METHOD(Function_isPrime)
 		{
 			BigInteger test(920419823);
-			Assert::AreEqual(true,isPrime(test));
+			Assert::AreEqual(true, isPrime(test));
 			BigInteger test2(1721 * 3769);
 			Assert::AreEqual(false, isPrime(test2));
+			BigInteger test3 = 92041982344333;
+			BigInteger test4 = test3 * test3;
+			Assert::AreEqual(false, isPrime(test4));
 		}
 
 		//测试扩展欧几里得算法
@@ -616,7 +618,7 @@ namespace RSAUnitTest
 			q = producePrime(bits / 2);
 			n = q*p;
 			phi_n = (q - 1)*(p - 1);
-			b = produceBigInteger(phi_n);
+			b = produceBigInteger(bits/2);
 			while (gcd(b, phi_n) != 1)
 			{
 				b = b+1;
@@ -634,7 +636,7 @@ namespace RSAUnitTest
 			q = producePrime(bits / 2);
 			n = q*p;
 			phi_n = (q - 1)*(p - 1);
-			b = produceBigInteger(phi_n);
+			b = produceBigInteger(bits / 2);
 			while (gcd(b, phi_n) != 1)
 			{
 				b = b + 1;
@@ -652,7 +654,7 @@ namespace RSAUnitTest
 			q = producePrime(bits / 2);
 			n = q*p;
 			phi_n = (q - 1)*(p - 1);
-			b = produceBigInteger(phi_n);
+			b = produceBigInteger(bits / 2);
 			while (gcd(b, phi_n) != 1)
 			{
 				b = b + 1;
@@ -664,6 +666,45 @@ namespace RSAUnitTest
 		TEST_METHOD(Function_ProducePrime)
 		{
 			BigInteger k = producePrime(512);
+		}
+
+		//测试生成密码的正确性
+		TEST_METHOD(Rightness)
+		{
+			int bits = 768;
+			BigInteger p = producePrime(bits / 2);
+			BigInteger q = producePrime(bits / 2);
+			BigInteger n = q*p;
+			BigInteger phi_n = (q - 1)*(p - 1);
+			BigInteger b = produceBigInteger(bits / 2);
+			while (gcd(b, phi_n) != 1)
+				b = b + 1;
+			BigInteger a = inverseMod(b, phi_n);
+			BigInteger midtest = (a*b) % phi_n;
+			Assert::AreEqual(BigInteger(1).toString16(),midtest.toString16());
+
+			vector<BigInteger> origin;
+			vector<BigInteger> after;
+			string ostring = "hello world!";
+			string enstring;
+			string rstring;
+
+			transferToBigIntegers(origin, ostring, bits);
+			for (int i = 0; i < origin.size(); i++)
+			{
+				after.push_back(modularExp(origin[i], b, n));
+			}
+			transferToString16(after, enstring, bits);
+
+			transferToBigIntegers16(origin, enstring, bits);
+			after.clear();
+			for (int i = 0; i < origin.size(); i++)
+			{
+				after.push_back(modularExp(origin[i], a, n));
+			}
+			transferToString(after, rstring, bits);
+			
+			Assert::AreEqual(ostring, rstring);
 		}
 
 		//测试<<功能
