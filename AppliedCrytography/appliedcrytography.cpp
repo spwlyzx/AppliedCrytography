@@ -50,7 +50,7 @@ void AppliedCrytography::SavePublicKey()
 {
 	QString filename = QFileDialog::getSaveFileName(this, tr("Save Public Key"),
 		".", tr("Key Files (*.txt)"));
-	fstream f(filename.toStdString());
+	ofstream f(filename.toStdString());
 	if (!filename.isEmpty() && !f)
 	{
 		QMessageBox::warning(this,"Warning","Don't have 'write' authority in this directory.");
@@ -61,6 +61,8 @@ void AppliedCrytography::SavePublicKey()
 		QMessageBox::warning(this, "Warning", "You should generate a group of keys");
 		return;
 	}
+	else if (filename.isEmpty())
+		return;
 	f << n.toString16() << endl;
 	f << b.toString16() << endl;
 }
@@ -69,7 +71,7 @@ void AppliedCrytography::SavePrivateKey()
 {
 	QString filename = QFileDialog::getSaveFileName(this, tr("Save Private Key"),
 		".", tr("Key Files (*.txt)"));
-	fstream f(filename.toStdString());
+	ofstream f(filename.toStdString());
 	if (!filename.isEmpty() && !f)
 	{
 		QMessageBox::warning(this, "Warning", "Don't have 'write' authority in this directory.");
@@ -80,6 +82,8 @@ void AppliedCrytography::SavePrivateKey()
 		QMessageBox::warning(this, "Warning", "You should generate a group of keys");
 		return;
 	}
+	else if (filename.isEmpty())
+		return;
 	f << a.toString16() << endl;
 	f << p.toString16() << endl;
 	f << q.toString16() << endl;
@@ -92,7 +96,11 @@ void AppliedCrytography::LoadMessage()
 	fstream f(filename.toStdString());
 	if (!filename.isEmpty() && !f)
 	{
-		QMessageBox::warning(this, "Warning", "The file doesn't exist.");
+		QMessageBox::warning(this, "Warning", "The file doesn't exist or don't have 'read' authority in this directory.");
+		return;
+	}
+	else if (filename.isEmpty())
+	{
 		return;
 	}
 	string line;
@@ -135,12 +143,14 @@ void AppliedCrytography::SaveMessage()
 {
 	QString filename = QFileDialog::getSaveFileName(this, tr("Save Encrypted Message"),
 		".", tr("Message Files (*.txt)"));
-	fstream f(filename.toStdString());
+	ofstream f(filename.toStdString());
 	if (!filename.isEmpty() && !f)
 	{
 		QMessageBox::warning(this, "Warning", "Don't have 'write' authority in this directory.");
 		return;
 	}
+	else if (filename.isEmpty())
+		return;
 	f << encrypt_message << endl;
 }
 
@@ -151,9 +161,11 @@ void AppliedCrytography::LoadPrivateKey()
 	fstream f(filename.toStdString());
 	if (!filename.isEmpty() && !f)
 	{
-		QMessageBox::warning(this, "Warning", "The file doesn't exist.");
+		QMessageBox::warning(this, "Warning", "The file doesn't exist or don't have 'read' authority in this directory.");
 		return;
 	}
+	else if (filename.isEmpty())
+		return;
 	string temp;
 	f >> temp;
 	a = BigInteger(temp);
@@ -171,9 +183,11 @@ void AppliedCrytography::LoadPublicKey()
 	fstream f(filename.toStdString());
 	if (!filename.isEmpty() && !f)
 	{
-		QMessageBox::warning(this, "Warning", "The file doesn't exist.");
+		QMessageBox::warning(this, "Warning", "The file doesn't exist or don't have 'read' authority in this directory.");
 		return;
 	}
+	else if (filename.isEmpty())
+		return;
 	string temp;
 	f >> temp;
 	n = BigInteger(temp);
@@ -189,9 +203,11 @@ void AppliedCrytography::LoadEncryptedText()
 	fstream f(filename.toStdString());
 	if (!filename.isEmpty() && !f)
 	{
-		QMessageBox::warning(this, "Warning", "Don't have 'write' authority in this directory.");
+		QMessageBox::warning(this, "Warning", "The file doesn't exist or don't have 'read' authority in this directory.");
 		return;
 	}
+	else if (filename.isEmpty())
+		return;
 	string line;
 	encrypt_message = "";
 	while (!f.eof())
@@ -231,13 +247,15 @@ void AppliedCrytography::DecryptMessage()
 void AppliedCrytography::SaveDecryptedText()
 {
 	QString filename = QFileDialog::getSaveFileName(this, tr("Save Decrypted Message"),
-		".", tr("Message Files (*.mes)"));
-	fstream f(filename.toStdString());
+		".", tr("Message Files (*.txt)"));
+	ofstream f(filename.toStdString());
 	if (!filename.isEmpty() && !f )
 	{
 		QMessageBox::warning(this, "Warning", "Don't have 'write' authority in this directory.");
 		return;
 	}
+	else if (filename.isEmpty())
+		return;
 	f << message << endl;
 }
 

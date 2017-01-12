@@ -510,11 +510,13 @@ void transferToBigIntegers(vector<BigInteger> &bigs, const string &message, cons
 	bigs.clear();
 	const char* temp = message.c_str();
 	unsigned char x, y, z;
-	int total, i, j;
+	unsigned int total;
+	int i, j;
 	int size = message.size();
-	int each = bits / 8;
+	int each = bits / 8 - 3;
 	for (j = 0; j < size; j = j + each)
 	{
+		BigInteger temp2;
 		for (i = j; i < size && i < j + each; i = i + 3) {
 			x = temp[i];
 			if (i + 1 < size && i + 1 < j + each)
@@ -526,8 +528,10 @@ void transferToBigIntegers(vector<BigInteger> &bigs, const string &message, cons
 			else
 				z = 0;
 			total = (x << 16) + (y << 8) + z;
-			bigs.push_back(BigInteger(total));
+			temp2.data.push_back(total);
 		}
+		temp2.normalize();
+		bigs.push_back(temp2);
 	}
 }
 
@@ -535,12 +539,12 @@ void transferToBigIntegers(vector<BigInteger> &bigs, const string &message, cons
 void transferToString(const vector<BigInteger> &bigs, string &message, const int& bits)
 {
 	message = "";
-	int total, i, j;
-	char x, y, z;
+	int i, j;
+	unsigned char x, y, z;
 	for (j = 0; j < bigs.size(); j++)
 	{
 		for (i = 0; i < bigs[j].data.size(); i++) {
-			int temp = bigs[j].data[i];
+			unsigned int temp = bigs[j].data[i];
 			x = temp >> 16;
 			y = temp >> 8;
 			z = temp;
@@ -558,12 +562,22 @@ void transferToString(const vector<BigInteger> &bigs, string &message, const int
 void transferToBigIntegers16(vector<BigInteger> &bigs, const string &message, const int& bits)
 {
 	bigs.clear();
-	int each = bits / 4;
-	int num = message.length() / each + 1;
-	for (int i = 0; i < num;i++) {
-		int min = (i*each + each - 1) > message.length() ? message.length() - (i*each-1) : each;
-		string substr = message.substr(i*each, min);
-		bigs.push_back(BigInteger(substr));
+	int pos;
+	for (int i = 0; i < message.length();) {
+		pos = message.find("|", i);
+		string substr;
+		if (string::npos == pos) 
+		{
+			substr = message.substr(i, message.length() - i);
+			bigs.push_back(BigInteger(substr));
+			break;
+		}
+		else
+		{
+			substr = message.substr(i, pos - i);
+			bigs.push_back(BigInteger(substr));
+			i = pos + 1;
+		}
 	}
 }
 
@@ -573,13 +587,14 @@ void transferToString16(vector<BigInteger> &bigs, string &message, const int& bi
 	message = "";
 	int num = bigs.size();
 	string temp;
-	for (int i = 0; i <num; i++)
+	int i;
+	for (i = 0; i < num - 1; i++)
 	{
 		temp = bigs[i].toString16();
-		while (temp.length() < bits / 4)
-			temp = "0" + temp;
-		message = message + temp;
+		message = message + temp + "|";
 	}
+	temp = bigs[i].toString16();
+	message = message + temp;
 }
 
 BigInteger operator-(const BigInteger &a)
