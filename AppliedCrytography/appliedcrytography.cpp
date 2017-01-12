@@ -53,7 +53,7 @@ void AppliedCrytography::SavePublicKey()
 	ofstream f(filename.toStdString());
 	if (!filename.isEmpty() && !f)
 	{
-		QMessageBox::warning(this,"Warning","Don't have 'write' authority in this directory.");
+		QMessageBox::warning(this,"Warning","The path should not contain chinese.");
 		return;
 	}
 	else if(!filename.isEmpty() && n.bitNum==0)
@@ -74,7 +74,7 @@ void AppliedCrytography::SavePrivateKey()
 	ofstream f(filename.toStdString());
 	if (!filename.isEmpty() && !f)
 	{
-		QMessageBox::warning(this, "Warning", "Don't have 'write' authority in this directory.");
+		QMessageBox::warning(this, "Warning", "The path should not contain chinese.");
 		return;
 	}
 	else if (!filename.isEmpty() && n.bitNum == 0)
@@ -96,7 +96,7 @@ void AppliedCrytography::LoadMessage()
 	fstream f(filename.toStdString());
 	if (!filename.isEmpty() && !f)
 	{
-		QMessageBox::warning(this, "Warning", "The file doesn't exist or don't have 'read' authority in this directory.");
+		QMessageBox::warning(this, "Warning", "The path should not contain chinese.");
 		return;
 	}
 	else if (filename.isEmpty())
@@ -146,7 +146,7 @@ void AppliedCrytography::SaveMessage()
 	ofstream f(filename.toStdString());
 	if (!filename.isEmpty() && !f)
 	{
-		QMessageBox::warning(this, "Warning", "Don't have 'write' authority in this directory.");
+		QMessageBox::warning(this, "Warning", "The path should not contain chinese.");
 		return;
 	}
 	else if (filename.isEmpty())
@@ -161,7 +161,7 @@ void AppliedCrytography::LoadPrivateKey()
 	fstream f(filename.toStdString());
 	if (!filename.isEmpty() && !f)
 	{
-		QMessageBox::warning(this, "Warning", "The file doesn't exist or don't have 'read' authority in this directory.");
+		QMessageBox::warning(this, "Warning", "The path should not contain chinese.");
 		return;
 	}
 	else if (filename.isEmpty())
@@ -183,7 +183,7 @@ void AppliedCrytography::LoadPublicKey()
 	fstream f(filename.toStdString());
 	if (!filename.isEmpty() && !f)
 	{
-		QMessageBox::warning(this, "Warning", "The file doesn't exist or don't have 'read' authority in this directory.");
+		QMessageBox::warning(this, "Warning", "The path should not contain chinese.");
 		return;
 	}
 	else if (filename.isEmpty())
@@ -203,7 +203,7 @@ void AppliedCrytography::LoadEncryptedText()
 	fstream f(filename.toStdString());
 	if (!filename.isEmpty() && !f)
 	{
-		QMessageBox::warning(this, "Warning", "The file doesn't exist or don't have 'read' authority in this directory.");
+		QMessageBox::warning(this, "Warning", "The path should not contain chinese.");
 		return;
 	}
 	else if (filename.isEmpty())
@@ -251,7 +251,7 @@ void AppliedCrytography::SaveDecryptedText()
 	ofstream f(filename.toStdString());
 	if (!filename.isEmpty() && !f )
 	{
-		QMessageBox::warning(this, "Warning", "Don't have 'write' authority in this directory.");
+		QMessageBox::warning(this, "Warning", "The path should not contain chinese.");
 		return;
 	}
 	else if (filename.isEmpty())
